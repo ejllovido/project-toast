@@ -1,14 +1,36 @@
 import React from 'react'
 import Button from '../Button'
 import styles from './ToastPlayground.module.css'
-import Toast from '../Toast'
+import ToastShelf from '../ToastShelf'
 
 const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error']
 
 function ToastPlayground() {
   const [message, setMessage] = React.useState('')
   const [selectedVariant, setSelectedVariant] = React.useState(VARIANT_OPTIONS[0])
-  const [showToast, setShowToast] = React.useState(false)
+  const [toasts, setToasts] = React.useState([])
+
+  const handleCreateToast = (event) => {
+    event.preventDefault()
+    const nextToasts = [
+      ...toasts,
+      {
+        id: crypto.randomUUID(),
+        message,
+        selectedVariant,
+      },
+    ]
+
+    setToasts(nextToasts)
+
+    setMessage('')
+    setSelectedVariant(VARIANT_OPTIONS[0])
+  }
+
+  const handleCloseToast = (id) => {
+    const nextToasts = toasts.filter((toast) => toast.id !== id)
+    setToasts(nextToasts)
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -17,13 +39,9 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {showToast && (
-        <Toast selectedVariant={selectedVariant} setShowToast={setShowToast}>
-          {message}
-        </Toast>
-      )}
+      <ToastShelf toasts={toasts} handleCloseToast={handleCloseToast} />
 
-      <div className={styles.controlsWrapper}>
+      <form className={styles.controlsWrapper} onSubmit={handleCreateToast}>
         <div className={styles.row}>
           <label htmlFor='message' className={styles.label} style={{ alignSelf: 'baseline' }}>
             Message
@@ -59,10 +77,10 @@ function ToastPlayground() {
         <div className={styles.row}>
           <div className={styles.label} />
           <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
-            <Button onClick={() => setShowToast(true)}>Pop Toast!</Button>
+            <Button>Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
